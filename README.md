@@ -5,7 +5,7 @@
 ## 📦 Установка
 
 ```bash
-go get your-module/csvx
+go get github.com/exgamer/csv-parser
 ```
 
 ---
