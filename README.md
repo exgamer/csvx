@@ -81,10 +81,24 @@ err := csvx.ParseInBatches(
     mapper,
     1000,
     func(batch []User) error {
-        return saveToDB(batch)
+        log.Printf("save batch: %d", len(batch))
+		
+        return nil
     },
-    csvx.ParseOptions{},
+    csvx.ParseOptions{
+        TrimLeadingSpace:  true,
+        TrimHeaderSpace:   true,
+        TrimUTF8BOM:       true,
+        AllowShortRows:    true,
+        SkipDecodeErrors:  true,
+        SkipHandlerErrors: false,
+        MaxRowErrors:      100,
+        OnRowError: func(err *csvx.RowError) {
+        log.Printf("row error: %v", err)
+        },
+    },
 )
+
 ```
 
 ---

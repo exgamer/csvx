@@ -16,7 +16,7 @@ import (
 // HeaderIndex - индекс заголовков CSV.
 type HeaderIndex map[string]int
 
-// RowAccessor - быстрый доступ к данным строки без map[string]string на каждую запись.
+// RowAccessor - быстрый доступ к данным строки
 //
 // Важно:
 //   - accessor живет только в рамках текущего вызова mapper/handler
@@ -39,6 +39,7 @@ func NewRowAccessor(index HeaderIndex, row []string) RowAccessor {
 // HasColumn - проверить наличие заголовка.
 func (r RowAccessor) HasColumn(key string) bool {
 	_, ok := r.index[key]
+
 	return ok
 }
 
@@ -170,6 +171,7 @@ func (r RowAccessor) RawValues() []string {
 func (r RowAccessor) ValuesCopy() []string {
 	result := make([]string, len(r.row))
 	copy(result, r.row)
+
 	return result
 }
 
@@ -343,6 +345,7 @@ func ParseStream[T any](
 				return err
 			}
 			lineNumber++
+
 			continue
 		}
 
@@ -351,6 +354,7 @@ func ParseStream[T any](
 				return err
 			}
 			lineNumber++
+
 			continue
 		}
 
@@ -360,6 +364,7 @@ func ParseStream[T any](
 				return err
 			}
 			lineNumber++
+
 			continue
 		}
 
@@ -368,6 +373,7 @@ func ParseStream[T any](
 				return err
 			}
 			lineNumber++
+
 			continue
 		}
 
@@ -389,6 +395,7 @@ func ParseFileToSlice[T any](
 
 	err := ParseFileStream(ctx, filePath, mapper, func(item T) error {
 		result = append(result, item)
+
 		return nil
 	}, opts)
 	if err != nil {
@@ -487,6 +494,7 @@ func ParseInBatches[T any](
 		}
 
 		batch = batch[:0]
+
 		return nil
 	}
 
