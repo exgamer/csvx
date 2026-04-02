@@ -149,7 +149,7 @@ func (r RowAccessor) Bool(key string) (bool, error) {
 		return false, err
 	}
 
-	result, err := strconv.ParseBool(strings.TrimSpace(value))
+	result, err := strconv.ParseBool(value)
 	if err != nil {
 		return false, fmt.Errorf("field %q parse bool: %w", key, err)
 	}
