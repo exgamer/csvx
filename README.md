@@ -166,9 +166,9 @@ saved = append(saved, row.ValuesCopy())
 ### Тесты 
 
 ```bash
-go test -v ./internal/csvx
+go test -v .
 
-go test -bench=. ./internal/csvx
+go test -bench=. .
 
 ```
 

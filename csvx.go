@@ -288,19 +288,19 @@ func ParseStream[T any](
 	reader.FieldsPerRecord = -1
 	reader.ReuseRecord = true
 
-	headers, err := reader.Read()
-	if err != nil {
-		if errors.Is(err, io.EOF) {
+	headers, headersReadErr := reader.Read()
+	if headersReadErr != nil {
+		if errors.Is(headersReadErr, io.EOF) {
 			return errors.New("csv is empty")
 		}
 
-		return fmt.Errorf("read headers: %w", err)
+		return fmt.Errorf("read headers: %w", headersReadErr)
 	}
 
 	headers = normalizeHeaders(headers, opts)
 
-	if err := validateHeaders(headers, opts); err != nil {
-		return fmt.Errorf("validate headers: %w", err)
+	if headersValidateErr := validateHeaders(headers, opts); headersValidateErr != nil {
+		return fmt.Errorf("validate headers: %w", headersValidateErr)
 	}
 
 	index := buildHeaderIndex(headers)
@@ -335,43 +335,47 @@ func ParseStream[T any](
 		default:
 		}
 
-		record, err := reader.Read()
-		if err != nil {
-			if errors.Is(err, io.EOF) {
+		record, recordReadErr := reader.Read()
+		if recordReadErr != nil {
+			if errors.Is(recordReadErr, io.EOF) {
 				return nil
 			}
 
-			if err := handleRowError(lineNumber, err, opts.SkipDecodeErrors); err != nil {
-				return err
+			if rowErr := handleRowError(lineNumber, recordReadErr, opts.SkipDecodeErrors); rowErr != nil {
+				return rowErr
 			}
+
 			lineNumber++
 
 			continue
 		}
 
-		if err := validateRecord(headers, record, opts); err != nil {
-			if err := handleRowError(lineNumber, err, opts.SkipDecodeErrors); err != nil {
-				return err
+		if validateRecordErr := validateRecord(headers, record, opts); validateRecordErr != nil {
+			if handleRowErr := handleRowError(lineNumber, validateRecordErr, opts.SkipDecodeErrors); handleRowErr != nil {
+				return handleRowErr
 			}
+
 			lineNumber++
 
 			continue
 		}
 
-		item, err := mapper(NewRowAccessor(index, record))
-		if err != nil {
-			if err := handleRowError(lineNumber, err, opts.SkipDecodeErrors); err != nil {
-				return err
+		item, mapperErr := mapper(NewRowAccessor(index, record))
+		if mapperErr != nil {
+			if handleRowErr := handleRowError(lineNumber, mapperErr, opts.SkipDecodeErrors); handleRowErr != nil {
+				return handleRowErr
 			}
+
 			lineNumber++
 
 			continue
 		}
 
-		if err := handler(item); err != nil {
-			if err := handleRowError(lineNumber, err, opts.SkipHandlerErrors); err != nil {
-				return err
+		if handlerErr := handler(item); handlerErr != nil {
+			if handlerRowErr := handleRowError(lineNumber, handlerErr, opts.SkipHandlerErrors); handlerRowErr != nil {
+				return handlerRowErr
 			}
+
 			lineNumber++
 
 			continue
